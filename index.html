@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VibeFit - 다이어트 & 웰니스 트래커</title>
+  <title>Damiet - 다이어트 & 웰니스 트래커</title>
   
-  <!-- Google Fonts: Outfit & Noto Sans KR -->
+  <!-- Google Fonts: Gaegu (귀여운 로고용), Outfit & Noto Sans KR -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
   
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -22,11 +22,11 @@
 <body>
   <div class="app-container">
     
-    <!-- Sidebar Navigation (Desktop) / Bottom Nav (Mobile) -->
+    <!-- Sidebar Navigation -->
     <aside class="app-sidebar">
       <div class="sidebar-logo">
-        <i data-lucide="flame" class="logo-icon"></i>
-        <span class="logo-text">VibeFit</span>
+        <i data-lucide="sparkles" class="logo-icon"></i>
+        <span class="logo-text">Damiet</span>
       </div>
       <nav class="sidebar-nav">
         <button class="nav-item active" data-tab="dashboard">
@@ -55,7 +55,7 @@
         </button>
       </nav>
       <div class="sidebar-footer">
-        <button id="btn-demo-data" class="btn btn-secondary btn-sm">
+        <button id="btn-demo-data" class="btn btn-secondary btn-sm btn-block">
           <i data-lucide="sparkles"></i>
           <span>데모 데이터 생성</span>
         </button>
@@ -65,7 +65,7 @@
     <!-- Main Content Area -->
     <main class="app-main">
       
-      <!-- Top Bar: Date Selector & Quick Profile -->
+      <!-- Top Bar: Date Selector -->
       <header class="app-header">
         <div class="header-title">
           <h1 id="header-page-title">대시보드</h1>
@@ -89,7 +89,6 @@
 
       <!-- TAB 1: DASHBOARD -->
       <section id="tab-dashboard" class="tab-content active">
-        <!-- Quick Summary Cards -->
         <div class="dashboard-grid">
           <!-- Caloric Card -->
           <div class="summary-card cal-card">
@@ -151,9 +150,7 @@
             </div>
             <div class="card-body-flex">
               <div class="water-progress-wrapper">
-                <div class="water-cups-row" id="water-cups-container">
-                  <!-- JS will render cups here -->
-                </div>
+                <div class="water-cups-row" id="water-cups-container"></div>
                 <div class="water-stats">
                   <span id="water-value" class="large-num">0</span>
                   <span class="unit">/ 8 컵 (2,000ml)</span>
@@ -190,7 +187,6 @@
           </div>
         </div>
 
-        <!-- Dashboard Charts / Detail Rows -->
         <div class="dashboard-charts-grid">
           <div class="chart-card">
             <div class="chart-header">
@@ -216,7 +212,7 @@
         </div>
       </section>
 
-      <!-- TAB: MONTHLY CALENDAR -->
+      <!-- TAB 2: MONTHLY CALENDAR -->
       <section id="tab-calendar" class="tab-content">
         <div class="calendar-wrapper">
           <div class="calendar-ctrl-header">
@@ -230,7 +226,6 @@
           </div>
           
           <div class="calendar-grid-container">
-            <!-- Weekdays Row -->
             <div class="calendar-weekdays">
               <span class="weekday sunday">일</span>
               <span class="weekday">월</span>
@@ -240,47 +235,23 @@
               <span class="weekday">금</span>
               <span class="weekday saturday">토</span>
             </div>
-            
-            <!-- Calendar Cells -->
-            <div id="calendar-days-grid" class="calendar-days-grid">
-              <!-- JS will render calendar cells here -->
-            </div>
+            <div id="calendar-days-grid" class="calendar-days-grid"></div>
           </div>
 
-          <!-- Calendar Legend -->
           <div class="calendar-legend-box">
-            <div class="legend-item">
-              <span class="legend-dot diet-b"></span>
-              <span>아침</span>
-            </div>
-            <div class="legend-item">
-              <span class="legend-dot diet-l"></span>
-              <span>점심</span>
-            </div>
-            <div class="legend-item">
-              <span class="legend-dot diet-s"></span>
-              <span>간식</span>
-            </div>
-            <div class="legend-item">
-              <span class="legend-dot diet-d"></span>
-              <span>저녁</span>
-            </div>
-            <div class="legend-item">
-              <i data-lucide="dumbbell" class="legend-icon"></i>
-              <span>운동 완료</span>
-            </div>
-            <div class="legend-item">
-              <span class="legend-text-weight">58.3kg</span>
-              <span>체중 기록</span>
-            </div>
+            <div class="legend-item"><span class="legend-dot diet-b"></span><span>아침</span></div>
+            <div class="legend-item"><span class="legend-dot diet-l"></span><span>점심</span></div>
+            <div class="legend-item"><span class="legend-dot diet-s"></span><span>간식</span></div>
+            <div class="legend-item"><span class="legend-dot diet-d"></span><span>저녁</span></div>
+            <div class="legend-item"><i data-lucide="dumbbell" class="legend-icon"></i><span>운동 완료</span></div>
+            <div class="legend-item"><span class="legend-text-weight">58.3kg</span><span>체중 기록</span></div>
           </div>
         </div>
       </section>
 
-      <!-- TAB 2: DIET LOG -->
+      <!-- TAB 3: DIET LOG -->
       <section id="tab-diet" class="tab-content">
         <div class="diet-grid">
-          <!-- Meal cards container -->
           <!-- Breakfast -->
           <div class="meal-log-card" data-meal-type="breakfast">
             <div class="meal-card-header">
@@ -288,27 +259,22 @@
               <div class="meal-cal-summary"><span id="breakfast-cal-summary">0</span> kcal</div>
             </div>
             <div class="meal-card-body">
-              <!-- Drag and drop photo zone -->
               <div class="photo-upload-zone" id="breakfast-photo-zone">
                 <input type="file" id="breakfast-photo-input" class="photo-file-input" accept="image/*">
                 <div class="upload-placeholder" id="breakfast-placeholder">
                   <i data-lucide="image-plus" class="upload-icon"></i>
                   <span>식단 사진 등록</span>
-                  <span class="upload-sub">클릭하거나 이미지 파일을 끌어다 놓으세요.</span>
+                  <span class="upload-sub">클릭하거나 이미지를 끌어다 놓으세요.</span>
                 </div>
                 <div class="image-preview-container hidden" id="breakfast-preview-container">
                   <img id="breakfast-preview-img" src="" alt="아침 식단 이미지" class="meal-preview-img">
-                  <button type="button" class="btn-delete-photo" id="btn-delete-breakfast-photo" aria-label="사진 삭제">
-                    <i data-lucide="trash-2"></i>
-                  </button>
+                  <button type="button" class="btn-delete-photo" id="btn-delete-breakfast-photo"><i data-lucide="trash-2"></i></button>
                 </div>
               </div>
-
-              <!-- Meal details input form -->
               <div class="meal-form">
                 <div class="form-group">
                   <label for="breakfast-food-desc">식사 내용</label>
-                  <textarea id="breakfast-food-desc" class="textarea-styled" placeholder="예: 현미밥 반 공기, 닭가슴살 100g, 아몬드 5알" rows="2"></textarea>
+                  <textarea id="breakfast-food-desc" class="textarea-styled" placeholder="예: 현미밥, 닭가슴살 100g, 아몬드" rows="2"></textarea>
                 </div>
                 <div class="form-group-row">
                   <div class="form-group flex-1">
@@ -316,9 +282,7 @@
                     <input type="number" id="breakfast-calories" class="input-styled" placeholder="0">
                   </div>
                   <div class="form-group flex-1 align-end">
-                    <button class="btn btn-primary btn-block btn-save-meal" data-meal="breakfast">
-                      <i data-lucide="save"></i> 저장
-                    </button>
+                    <button class="btn btn-primary btn-block btn-save-meal" data-meal="breakfast"><i data-lucide="save"></i> 저장</button>
                   </div>
                 </div>
               </div>
@@ -332,27 +296,22 @@
               <div class="meal-cal-summary"><span id="lunch-cal-summary">0</span> kcal</div>
             </div>
             <div class="meal-card-body">
-              <!-- Drag and drop photo zone -->
               <div class="photo-upload-zone" id="lunch-photo-zone">
                 <input type="file" id="lunch-photo-input" class="photo-file-input" accept="image/*">
                 <div class="upload-placeholder" id="lunch-placeholder">
                   <i data-lucide="image-plus" class="upload-icon"></i>
                   <span>식단 사진 등록</span>
-                  <span class="upload-sub">클릭하거나 이미지 파일을 끌어다 놓으세요.</span>
+                  <span class="upload-sub">클릭하거나 이미지를 끌어다 놓으세요.</span>
                 </div>
                 <div class="image-preview-container hidden" id="lunch-preview-container">
                   <img id="lunch-preview-img" src="" alt="점심 식단 이미지" class="meal-preview-img">
-                  <button type="button" class="btn-delete-photo" id="btn-delete-lunch-photo" aria-label="사진 삭제">
-                    <i data-lucide="trash-2"></i>
-                  </button>
+                  <button type="button" class="btn-delete-photo" id="btn-delete-lunch-photo"><i data-lucide="trash-2"></i></button>
                 </div>
               </div>
-
-              <!-- Meal details input form -->
               <div class="meal-form">
                 <div class="form-group">
                   <label for="lunch-food-desc">식사 내용</label>
-                  <textarea id="lunch-food-desc" class="textarea-styled" placeholder="예: 연어 샐러드, 통밀빵 1조각, 아메리카노" rows="2"></textarea>
+                  <textarea id="lunch-food-desc" class="textarea-styled" placeholder="예: 연어 샐러드, 통밀빵, 아메리카노" rows="2"></textarea>
                 </div>
                 <div class="form-group-row">
                   <div class="form-group flex-1">
@@ -360,9 +319,7 @@
                     <input type="number" id="lunch-calories" class="input-styled" placeholder="0">
                   </div>
                   <div class="form-group flex-1 align-end">
-                    <button class="btn btn-primary btn-block btn-save-meal" data-meal="lunch">
-                      <i data-lucide="save"></i> 저장
-                    </button>
+                    <button class="btn btn-primary btn-block btn-save-meal" data-meal="lunch"><i data-lucide="save"></i> 저장</button>
                   </div>
                 </div>
               </div>
@@ -376,27 +333,22 @@
               <div class="meal-cal-summary"><span id="snack-cal-summary">0</span> kcal</div>
             </div>
             <div class="meal-card-body">
-              <!-- Drag and drop photo zone -->
               <div class="photo-upload-zone" id="snack-photo-zone">
                 <input type="file" id="snack-photo-input" class="photo-file-input" accept="image/*">
                 <div class="upload-placeholder" id="snack-placeholder">
                   <i data-lucide="image-plus" class="upload-icon"></i>
                   <span>식단 사진 등록</span>
-                  <span class="upload-sub">클릭하거나 이미지 파일을 끌어다 놓으세요.</span>
+                  <span class="upload-sub">클릭하거나 이미지를 끌어다 놓으세요.</span>
                 </div>
                 <div class="image-preview-container hidden" id="snack-preview-container">
                   <img id="snack-preview-img" src="" alt="간식 식단 이미지" class="meal-preview-img">
-                  <button type="button" class="btn-delete-photo" id="btn-delete-snack-photo" aria-label="사진 삭제">
-                    <i data-lucide="trash-2"></i>
-                  </button>
+                  <button type="button" class="btn-delete-photo" id="btn-delete-snack-photo"><i data-lucide="trash-2"></i></button>
                 </div>
               </div>
-
-              <!-- Meal details input form -->
               <div class="meal-form">
                 <div class="form-group">
                   <label for="snack-food-desc">식사 내용</label>
-                  <textarea id="snack-food-desc" class="textarea-styled" placeholder="예: 하루견과 1봉지, 그릭 요거트, 방울토마토 5알" rows="2"></textarea>
+                  <textarea id="snack-food-desc" class="textarea-styled" placeholder="예: 하루견과, 그릭 요거트" rows="2"></textarea>
                 </div>
                 <div class="form-group-row">
                   <div class="form-group flex-1">
@@ -404,9 +356,7 @@
                     <input type="number" id="snack-calories" class="input-styled" placeholder="0">
                   </div>
                   <div class="form-group flex-1 align-end">
-                    <button class="btn btn-primary btn-block btn-save-meal" data-meal="snack">
-                      <i data-lucide="save"></i> 저장
-                    </button>
+                    <button class="btn btn-primary btn-block btn-save-meal" data-meal="snack"><i data-lucide="save"></i> 저장</button>
                   </div>
                 </div>
               </div>
@@ -420,27 +370,22 @@
               <div class="meal-cal-summary"><span id="dinner-cal-summary">0</span> kcal</div>
             </div>
             <div class="meal-card-body">
-              <!-- Drag and drop photo zone -->
               <div class="photo-upload-zone" id="dinner-photo-zone">
                 <input type="file" id="dinner-photo-input" class="photo-file-input" accept="image/*">
                 <div class="upload-placeholder" id="dinner-placeholder">
                   <i data-lucide="image-plus" class="upload-icon"></i>
                   <span>식단 사진 등록</span>
-                  <span class="upload-sub">클릭하거나 이미지 파일을 끌어다 놓으세요.</span>
+                  <span class="upload-sub">클릭하거나 이미지를 끌어다 놓으세요.</span>
                 </div>
                 <div class="image-preview-container hidden" id="dinner-preview-container">
                   <img id="dinner-preview-img" src="" alt="저녁 식단 이미지" class="meal-preview-img">
-                  <button type="button" class="btn-delete-photo" id="btn-delete-dinner-photo" aria-label="사진 삭제">
-                    <i data-lucide="trash-2"></i>
-                  </button>
+                  <button type="button" class="btn-delete-photo" id="btn-delete-dinner-photo"><i data-lucide="trash-2"></i></button>
                 </div>
               </div>
-
-              <!-- Meal details input form -->
               <div class="meal-form">
                 <div class="form-group">
                   <label for="dinner-food-desc">식사 내용</label>
-                  <textarea id="dinner-food-desc" class="textarea-styled" placeholder="예: 두부 구이, 닭가슴살 샐러드, 어린잎 야채" rows="2"></textarea>
+                  <textarea id="dinner-food-desc" class="textarea-styled" placeholder="예: 두부 구이, 샐러드" rows="2"></textarea>
                 </div>
                 <div class="form-group-row">
                   <div class="form-group flex-1">
@@ -448,9 +393,7 @@
                     <input type="number" id="dinner-calories" class="input-styled" placeholder="0">
                   </div>
                   <div class="form-group flex-1 align-end">
-                    <button class="btn btn-primary btn-block btn-save-meal" data-meal="dinner">
-                      <i data-lucide="save"></i> 저장
-                    </button>
+                    <button class="btn btn-primary btn-block btn-save-meal" data-meal="dinner"><i data-lucide="save"></i> 저장</button>
                   </div>
                 </div>
               </div>
@@ -459,10 +402,9 @@
         </div>
       </section>
 
-      <!-- TAB 3: EXERCISE LOG -->
+      <!-- TAB 4: EXERCISE LOG -->
       <section id="tab-exercise" class="tab-content">
         <div class="exercise-layout-grid">
-          <!-- Log exercise form -->
           <div class="exercise-card input-card">
             <div class="card-header">
               <h3>새 운동 기록하기</h3>
@@ -483,7 +425,7 @@
 
               <div class="form-group" id="group-custom-name" style="display: none;">
                 <label for="exercise-custom-name">운동 이름</label>
-                <input type="text" id="exercise-custom-name" class="input-styled" placeholder="예: 배드민턴, 댄스">
+                <input type="text" id="exercise-custom-name" class="input-styled" placeholder="예: 배드민턴">
               </div>
 
               <div class="form-group-row">
@@ -503,7 +445,6 @@
             </form>
           </div>
 
-          <!-- Daily exercise list -->
           <div class="exercise-card list-card">
             <div class="card-header">
               <h3>오늘의 운동 내역</h3>
@@ -513,20 +454,16 @@
               <div id="exercise-empty-state" class="empty-state">
                 <i data-lucide="dumbbell" class="empty-icon"></i>
                 <p>오늘 등록된 운동 내역이 없습니다.</p>
-                <span class="empty-sub">상단의 폼을 통해 오늘 완료한 운동을 기록해 보세요.</span>
               </div>
-              <ul id="exercise-list" class="exercise-list">
-                <!-- JS will render workout items here -->
-              </ul>
+              <ul id="exercise-list" class="exercise-list"></ul>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- TAB 4: WEIGHT TRACKER -->
+      <!-- TAB 5: WEIGHT TRACKER -->
       <section id="tab-weight" class="tab-content">
         <div class="weight-layout-grid">
-          <!-- Weight log form -->
           <div class="weight-col-left">
             <div class="weight-card input-card">
               <div class="card-header">
@@ -546,33 +483,19 @@
               </form>
             </div>
 
-            <!-- Target weight / Stats tracker -->
             <div class="weight-card stats-card">
               <div class="card-header">
                 <h3>체중 통계</h3>
               </div>
               <div class="weight-stats-rows">
-                <div class="w-stat-row">
-                  <span class="label">최근 기록</span>
-                  <strong id="weight-stat-latest">- kg</strong>
-                </div>
-                <div class="w-stat-row">
-                  <span class="label">최고 몸무게</span>
-                  <strong id="weight-stat-max">- kg</strong>
-                </div>
-                <div class="w-stat-row">
-                  <span class="label">최저 몸무게</span>
-                  <strong id="weight-stat-min">- kg</strong>
-                </div>
-                <div class="w-stat-row">
-                  <span class="label">기록 횟수</span>
-                  <strong id="weight-stat-count">0 회</strong>
-                </div>
+                <div class="w-stat-row"><span class="label">최근 기록</span><strong id="weight-stat-latest">- kg</strong></div>
+                <div class="w-stat-row"><span class="label">최고 몸무게</span><strong id="weight-stat-max">- kg</strong></div>
+                <div class="w-stat-row"><span class="label">최저 몸무게</span><strong id="weight-stat-min">- kg</strong></div>
+                <div class="w-stat-row"><span class="label">기록 횟수</span><strong id="weight-stat-count">0 회</strong></div>
               </div>
             </div>
           </div>
 
-          <!-- Weight historical list and main chart -->
           <div class="weight-col-right">
             <div class="weight-card history-card">
               <div class="card-header">
@@ -597,9 +520,7 @@
                       <th>관리</th>
                     </tr>
                   </thead>
-                  <tbody id="weight-history-tbody">
-                    <!-- JS will render weight history rows here -->
-                  </tbody>
+                  <tbody id="weight-history-tbody"></tbody>
                 </table>
               </div>
             </div>
@@ -607,56 +528,36 @@
         </div>
       </section>
 
-      <!-- TAB 5: DAILY DIARY & CONDITION -->
+      <!-- TAB 6: DAILY DIARY -->
       <section id="tab-diary" class="tab-content">
         <div class="diary-layout-grid">
-          <!-- Condition form -->
           <div class="diary-card-large">
             <div class="card-header">
               <h3>오늘의 컨디션 리포트</h3>
               <p class="text-muted">하루를 되돌아보며 몸과 마음의 상태를 기록합니다.</p>
             </div>
             <form id="form-diary" class="diary-form-layout">
-              
-              <!-- Condition Emoji Picker -->
               <div class="form-group-diary">
                 <label class="section-label">오늘의 컨디션</label>
                 <div class="condition-emoji-picker">
                   <input type="radio" name="condition" id="cond-excellent" value="excellent" class="emoji-radio">
-                  <label for="cond-excellent" class="emoji-label">
-                    <span class="emoji">😊</span>
-                    <span class="text">최상</span>
-                  </label>
+                  <label for="cond-excellent" class="emoji-label"><span class="emoji">😊</span><span class="text">최상</span></label>
                   
                   <input type="radio" name="condition" id="cond-good" value="good" class="emoji-radio" checked>
-                  <label for="cond-good" class="emoji-label">
-                    <span class="emoji">🙂</span>
-                    <span class="text">좋음</span>
-                  </label>
+                  <label for="cond-good" class="emoji-label"><span class="emoji">🙂</span><span class="text">좋음</span></label>
                   
                   <input type="radio" name="condition" id="cond-neutral" value="neutral" class="emoji-radio">
-                  <label for="cond-neutral" class="emoji-label">
-                    <span class="emoji">😐</span>
-                    <span class="text">보통</span>
-                  </label>
+                  <label for="cond-neutral" class="emoji-label"><span class="emoji">😐</span><span class="text">보통</span></label>
                   
                   <input type="radio" name="condition" id="cond-tired" value="neutral-tired" class="emoji-radio">
-                  <label for="cond-tired" class="emoji-label">
-                    <span class="emoji">🥱</span>
-                    <span class="text">피곤함</span>
-                  </label>
+                  <label for="cond-tired" class="emoji-label"><span class="emoji">🥱</span><span class="text">피곤함</span></label>
                   
                   <input type="radio" name="condition" id="cond-stressed" value="stressed" class="emoji-radio">
-                  <label for="cond-stressed" class="emoji-label">
-                    <span class="emoji">😫</span>
-                    <span class="text">스트레스</span>
-                  </label>
+                  <label for="cond-stressed" class="emoji-label"><span class="emoji">😫</span><span class="text">스트레스</span></label>
                 </div>
               </div>
 
-              <!-- Water & Sleep Row -->
               <div class="form-row-diary">
-                <!-- Water counter -->
                 <div class="form-col-diary card-nested">
                   <div class="nested-header">
                     <i data-lucide="droplet" class="text-info"></i>
@@ -674,7 +575,6 @@
                   </div>
                 </div>
 
-                <!-- Sleep duration tracker -->
                 <div class="form-col-diary card-nested">
                   <div class="nested-header">
                     <i data-lucide="moon" class="text-accent"></i>
@@ -697,10 +597,9 @@
                 </div>
               </div>
 
-              <!-- Diary Text Note -->
               <div class="form-group-diary">
                 <label for="diary-note-textarea" class="section-label">오늘의 일기 (간략한 컨디션 & 피드백)</label>
-                <textarea id="diary-note-textarea" class="textarea-styled-large" placeholder="오늘 식습관은 어땠나요? 몸 상태나 기분, 운동하며 느꼈던 점들을 일기처럼 편하게 작성해 보세요. (예: 저녁에 식단 조절이 잘 되어서 뿌듯했다. 스쿼트할 때 무릎이 살짝 아팠으나 전반적으로 활기찬 하루였다.)" rows="5"></textarea>
+                <textarea id="diary-note-textarea" class="textarea-styled-large" placeholder="오늘 식습관은 어땠나요? 기분이나 운동하며 느꼈던 점을 일기처럼 편하게 작성해 보세요." rows="5"></textarea>
               </div>
 
               <div class="diary-submit-wrapper">

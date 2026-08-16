@@ -1,5 +1,5 @@
 /* ==========================================================================
-   VibeFit - Core Application Script
+   Damiet - Core Application Script
    ========================================================================== */
 
 // Global State
@@ -31,7 +31,7 @@ const EXERCISE_METS = {
 // 1. INDEXEDDB ENGINE
 // ==========================================================================
 
-const DB_NAME = 'VibeFitDB';
+const DB_NAME = 'DamietDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'daily_logs';
 
@@ -92,7 +92,6 @@ async function getAllLogsFromDB() {
     const request = store.getAll();
 
     request.onsuccess = (event) => {
-      // Sort logs by date ascending
       const sortedLogs = event.target.result.sort((a, b) => a.date.localeCompare(b.date));
       resolve(sortedLogs);
     };
@@ -113,7 +112,6 @@ async function deleteLogFromDB(date) {
   });
 }
 
-// Helpers for data structures
 function getTodayString() {
   const now = new Date();
   const year = now.getFullYear();
@@ -145,18 +143,14 @@ function createEmptyLog(date) {
 // ==========================================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Set Datepicker to today
   const datePicker = document.getElementById('date-picker');
   datePicker.value = state.currentDate;
   updateDateDisplayText(state.currentDate);
 
-  // Initialize Lucide Icons
   lucide.createIcons();
 
-  // Load Initial State
   await loadCurrentDateData();
 
-  // Setup Event Listeners
   setupNavigationListeners();
   setupDatePickerListeners();
   setupCalendarListeners();
@@ -167,7 +161,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupDiaryListeners();
   setupDemoDataListener();
 
-  // Refresh Charts
   await refreshCharts();
 });
 
@@ -175,7 +168,6 @@ async function loadCurrentDateData() {
   state.currentLog = await getLogFromDB(state.currentDate);
   state.allLogs = await getAllLogsFromDB();
   
-  // Update inputs and widgets
   updateDashboardWidgets();
   updateDietTabForms();
   updateExerciseTabList();
@@ -214,11 +206,9 @@ function setupNavigationListeners() {
     btn.addEventListener('click', () => {
       const targetTab = btn.getAttribute('data-tab');
 
-      // Update Nav active states
       navButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      // Show correct tab section
       tabContents.forEach(tc => {
         if (tc.id === `tab-${targetTab}`) {
           tc.classList.add('active');
@@ -227,13 +217,11 @@ function setupNavigationListeners() {
         }
       });
 
-      // Update Page Headers
       if (pageMeta[targetTab]) {
         pageTitle.textContent = pageMeta[targetTab].title;
         pageSubtitle.textContent = pageMeta[targetTab].subtitle;
       }
 
-      // Re-render specific graphs to match layout boundaries after resize/tab switch
       refreshCharts();
     });
   });
@@ -277,13 +265,123 @@ function setupDatePickerListeners() {
 }
 
 // ==========================================================================
-// 4. DASHBOARD MANAGER
+// 4. MONTHLY CALENDAR ENGINE
+// ==========================================================================
+
+function setupCalendarListeners() {
+  const btnPrev = document.getElementById('btn-cal-prev-month');
+  const btnNext = document.getElementById('btn-cal-next-month');
+
+  btnPrev.addEventListener('click', () => {
+    state.calendarMonth--;
+    if (state.calendarMonth < 0) {
+      state.calendarMonth = 11;
+      state.calendarYear--;
+    }
+    renderCalendar();
+  });
+
+  btnNext.addEventListener('click', () => {
+    state.calendarMonth++;
+    if (state.calendarMonth > 11) {
+      state.calendarMonth = 0;
+      state.calendarYear++;
+    }
+    renderCalendar();
+  });
+}
+
+function renderCalendar() {
+  const label = document.getElementById('calendar-month-label');
+  const grid = document.getElementById('calendar-days-grid');
+  if (!label || !grid) return;
+
+  const year = state.calendarYear;
+  const month = state.calendarMonth;
+
+  label.textContent = `${year}년 ${String(month + 1).padStart(2, '0')}월`;
+  grid.innerHTML = '';
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // Empty cells before start
+  for (let i = 0; i < firstDay; i++) {
+    const emptyCell = document.createElement('div');
+    emptyCell.className = 'cal-day empty';
+    grid.appendChild(emptyCell);
+  }
+
+  // Days cells
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const cell = document.createElement('div');
+    cell.className = 'cal-day';
+    if (dateStr === state.currentDate) {
+      cell.classList.add('selected');
+    }
+
+    const dayNum = document.createElement('span');
+    dayNum.className = 'day-num';
+    dayNum.textContent = d;
+    cell.appendChild(dayNum);
+
+    // Find log for this date
+    const log = state.allLogs.find(l => l.date === dateStr);
+    if (log) {
+      const indicators = document.createElement('div');
+      indicators.className = 'cal-indicators';
+
+      // Meal dots
+      if (log.meals.breakfast.desc || log.meals.breakfast.cal > 0) indicators.appendChild(createDot('diet-b'));
+      if (log.meals.lunch.desc || log.meals.lunch.cal > 0) indicators.appendChild(createDot('diet-l'));
+      if (log.meals.snack.desc || log.meals.snack.cal > 0) indicators.appendChild(createDot('diet-s'));
+      if (log.meals.dinner.desc || log.meals.dinner.cal > 0) indicators.appendChild(createDot('diet-d'));
+
+      // Exercise Icon
+      if (log.exercises && log.exercises.length > 0) {
+        const exTag = document.createElement('span');
+        exTag.className = 'cal-ex-tag';
+        exTag.innerHTML = '🏋️';
+        indicators.appendChild(exTag);
+      }
+
+      cell.appendChild(indicators);
+
+      // Weight label
+      if (log.weight) {
+        const wTag = document.createElement('span');
+        wTag.className = 'cal-weight-tag';
+        wTag.textContent = `${log.weight.toFixed(1)}k`;
+        cell.appendChild(wTag);
+      }
+    }
+
+    cell.addEventListener('click', async () => {
+      state.currentDate = dateStr;
+      document.getElementById('date-picker').value = dateStr;
+      updateDateDisplayText(dateStr);
+      await loadCurrentDateData();
+      await refreshCharts();
+    });
+
+    grid.appendChild(cell);
+  }
+}
+
+function createDot(className) {
+  const dot = document.createElement('span');
+  dot.className = `legend-dot ${className}`;
+  return dot;
+}
+
+// ==========================================================================
+// 5. DASHBOARD MANAGER
 // ==========================================================================
 
 function updateDashboardWidgets() {
   const log = state.currentLog;
 
-  // 1. Calories Circle Progress Calculator
   const intake = (log.meals.breakfast.cal || 0) + (log.meals.lunch.cal || 0) + (log.meals.snack.cal || 0) + (log.meals.dinner.cal || 0);
   const burn = log.exercises.reduce((sum, item) => sum + (item.calories || 0), 0);
   const net = intake - burn;
@@ -292,7 +390,6 @@ function updateDashboardWidgets() {
   document.getElementById('cal-burn-value').textContent = `${burn.toLocaleString()} kcal`;
   document.getElementById('cal-net-value').textContent = net.toLocaleString();
 
-  // Progress Bar Ring Animation (Goal: 2000 kcal target)
   const target = 2000;
   const percentage = Math.min(100, Math.max(0, (intake / target) * 100));
   const ring = document.getElementById('cal-progress-ring');
@@ -301,20 +398,17 @@ function updateDashboardWidgets() {
   const offset = circumference - (percentage / 100) * circumference;
   ring.style.strokeDashoffset = offset;
 
-  // Change color indicator based on balance
   if (intake > target) {
     ring.style.stroke = 'var(--accent)';
   } else {
     ring.style.stroke = 'var(--primary)';
   }
 
-  // 2. Weight Widget
   const weightDisplay = document.getElementById('today-weight-display');
   const trendLabel = document.getElementById('weight-diff-label');
 
   if (log.weight) {
     weightDisplay.textContent = log.weight.toFixed(1);
-    // Find the previous weight logged before current date
     const prevLogs = state.allLogs.filter(l => l.date < state.currentDate && l.weight !== null);
     if (prevLogs.length > 0) {
       const prevWeight = prevLogs[prevLogs.length - 1].weight;
@@ -339,10 +433,8 @@ function updateDashboardWidgets() {
     trendLabel.textContent = '체중을 기록해 주세요';
   }
 
-  // 3. Water Widget Rendering
   renderWaterCups(log.water);
 
-  // 4. Condition & Sleep Summary
   document.getElementById('dash-sleep-val').textContent = log.sleep ? `${log.sleep} 시간` : '- 시간';
   
   const condMap = {
@@ -363,7 +455,6 @@ function updateDashboardWidgets() {
     diaryPreview.className = 'diary-preview-box-text text-muted italic';
   }
 
-  // Rerender Lucide Icons generated
   lucide.createIcons();
 }
 
@@ -382,7 +473,6 @@ function renderWaterCups(currentCups) {
     
     cup.addEventListener('click', async () => {
       let targetWater = i;
-      // If clicking the currently active cup, toggle it off (decrement by 1)
       if (state.currentLog.water === i && i > 0) {
         targetWater = i - 1;
       }
@@ -398,7 +488,6 @@ function renderWaterCups(currentCups) {
 }
 
 function setupQuickLogListeners() {
-  // Quick Weight Input Action
   const weightInput = document.getElementById('quick-weight-input');
   const btnWeight = document.getElementById('btn-quick-weight');
 
@@ -416,7 +505,6 @@ function setupQuickLogListeners() {
     }
   });
 
-  // Quick Water Button log
   const waterMinus = document.getElementById('btn-water-minus');
   const waterPlus = document.getElementById('btn-water-plus');
 
@@ -429,7 +517,7 @@ function setupQuickLogListeners() {
   });
 
   waterPlus.addEventListener('click', async () => {
-    if (state.currentLog.water < 12) { // Allow logging beyond 8 cups
+    if (state.currentLog.water < 12) {
       state.currentLog.water += 1;
       await saveLogToDB(state.currentLog);
       await loadCurrentDateData();
@@ -438,7 +526,7 @@ function setupQuickLogListeners() {
 }
 
 // ==========================================================================
-// 5. DIET LOG MANAGER (With Canvas Compression & Preview)
+// 6. DIET LOG MANAGER
 // ==========================================================================
 
 function updateDietTabForms() {
@@ -448,12 +536,10 @@ function updateDietTabForms() {
   meals.forEach(type => {
     const mealData = log.meals[type];
     
-    // Fill text description and calories
     document.getElementById(`${type}-food-desc`).value = mealData.desc || '';
     document.getElementById(`${type}-calories`).value = mealData.cal || '';
     document.getElementById(`${type}-cal-summary`).textContent = mealData.cal || 0;
 
-    // Show/hide thumbnail previews
     const previewContainer = document.getElementById(`${type}-preview-container`);
     const previewImg = document.getElementById(`${type}-preview-img`);
     const placeholder = document.getElementById(`${type}-placeholder`);
@@ -478,7 +564,6 @@ function setupDietListeners() {
     const fileInput = document.getElementById(`${type}-photo-input`);
     const deleteBtn = document.getElementById(`btn-delete-${type}-photo`);
 
-    // Handle Drag & Drop highlights
     ['dragenter', 'dragover'].forEach(eventName => {
       dropZone.addEventListener(eventName, (e) => {
         e.preventDefault();
@@ -495,7 +580,6 @@ function setupDietListeners() {
       }, false);
     });
 
-    // Handle Drop file event
     dropZone.addEventListener('drop', (e) => {
       const dt = e.dataTransfer;
       const files = dt.files;
@@ -504,16 +588,14 @@ function setupDietListeners() {
       }
     });
 
-    // Handle Click selector file event
     fileInput.addEventListener('change', (e) => {
       if (e.target.files.length > 0) {
         processUploadedImage(e.target.files[0], type);
       }
     });
 
-    // Handle Delete photo action
     deleteBtn.addEventListener('click', async (e) => {
-      e.stopPropagation(); // Avoid triggering click input overlay
+      e.stopPropagation();
       e.preventDefault();
       
       if (confirm('사진을 삭제하시겠습니까?')) {
@@ -524,7 +606,6 @@ function setupDietListeners() {
     });
   });
 
-  // Save Buttons for Meals
   const saveButtons = document.querySelectorAll('.btn-save-meal');
   saveButtons.forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -538,12 +619,7 @@ function setupDietListeners() {
       await saveLogToDB(state.currentLog);
       await loadCurrentDateData();
       
-      const mealLabels = {
-        breakfast: '아침',
-        lunch: '점심',
-        snack: '간식',
-        dinner: '저녁'
-      };
+      const mealLabels = { breakfast: '아침', lunch: '점심', snack: '간식', dinner: '저녁' };
       alert(`${mealLabels[type] || ''} 식단 정보가 저장되었습니다.`);
     });
   });
@@ -555,7 +631,6 @@ function processUploadedImage(file, mealType) {
     return;
   }
 
-  // Compress image client side using Canvas to save memory in IndexedDB
   const reader = new FileReader();
   reader.onload = function(event) {
     const img = new Image();
@@ -566,7 +641,6 @@ function processUploadedImage(file, mealType) {
       let width = img.width;
       let height = img.height;
 
-      // Maintain aspect ratio
       if (width > height) {
         if (width > MAX_WIDTH) {
           height *= MAX_WIDTH / width;
@@ -584,10 +658,8 @@ function processUploadedImage(file, mealType) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Export compressed base64 string
-      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85); // 85% quality
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
       
-      // Update State and DB
       state.currentLog.meals[mealType].photo = compressedDataUrl;
       saveLogToDB(state.currentLog).then(() => {
         loadCurrentDateData();
@@ -599,7 +671,7 @@ function processUploadedImage(file, mealType) {
 }
 
 // ==========================================================================
-// 6. EXERCISE MANAGER
+// 7. EXERCISE MANAGER
 // ==========================================================================
 
 function updateExerciseTabList() {
@@ -608,7 +680,6 @@ function updateExerciseTabList() {
   const emptyState = document.getElementById('exercise-empty-state');
   const summaryElement = document.getElementById('exercise-total-summary');
 
-  // Clear list
   listElement.innerHTML = '';
 
   const totalCalories = log.exercises.reduce((sum, item) => sum + item.calories, 0);
@@ -626,23 +697,14 @@ function updateExerciseTabList() {
       li.className = 'exercise-item';
 
       const typeLabels = {
-        running: '러닝',
-        walking: '걷기 / 산책',
-        cycling: '자전거',
-        swimming: '수영',
-        strength: '웨이트',
-        yoga: '요가 / 필라테스',
+        running: '러닝', walking: '걷기 / 산책', cycling: '자전거',
+        swimming: '수영', strength: '웨이트', yoga: '요가 / 필라테스',
         custom: item.customName || '기타'
       };
 
       const iconMap = {
-        running: 'flame',
-        walking: 'footprints',
-        cycling: 'bike',
-        swimming: 'waves',
-        strength: 'dumbbell',
-        yoga: 'heart',
-        custom: 'activity'
+        running: 'flame', walking: 'footprints', cycling: 'bike',
+        swimming: 'waves', strength: 'dumbbell', yoga: 'heart', custom: 'activity'
       };
 
       li.innerHTML = `
@@ -663,7 +725,6 @@ function updateExerciseTabList() {
         </div>
       `;
 
-      // Set listener for Delete single workout
       li.querySelector('.btn-delete-item').addEventListener('click', async (e) => {
         const idToDelete = parseFloat(e.currentTarget.getAttribute('data-id'));
         state.currentLog.exercises = state.currentLog.exercises.filter(ex => ex.id !== idToDelete);
@@ -687,7 +748,6 @@ function setupExerciseListeners() {
   const durationInput = document.getElementById('exercise-duration');
   const caloriesInput = document.getElementById('exercise-calories');
 
-  // Toggle Custom Exercise Name visibility
   selectType.addEventListener('change', () => {
     if (selectType.value === 'custom') {
       groupCustomName.style.display = 'block';
@@ -697,13 +757,10 @@ function setupExerciseListeners() {
       groupCustomName.style.display = 'none';
       customNameInput.required = false;
       caloriesInput.placeholder = '자동 계산';
-      
-      // Auto estimate calories if duration is already typed
       recalculateCaloriesEstimate();
     }
   });
 
-  // Calculate calories auto-estimations on duration input
   durationInput.addEventListener('input', recalculateCaloriesEstimate);
 
   function recalculateCaloriesEstimate() {
@@ -716,7 +773,6 @@ function setupExerciseListeners() {
     }
   }
 
-  // Handle Form submit
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -746,7 +802,6 @@ function setupExerciseListeners() {
     state.currentLog.exercises.push(newWorkout);
     await saveLogToDB(state.currentLog);
     
-    // Reset Form
     form.reset();
     groupCustomName.style.display = 'none';
     customNameInput.required = false;
@@ -758,16 +813,14 @@ function setupExerciseListeners() {
 }
 
 // ==========================================================================
-// 7. WEIGHT TRACKER & HISTORICAL LISTS
+// 8. WEIGHT TRACKER
 // ==========================================================================
 
 function updateWeightTabUI() {
   const log = state.currentLog;
 
-  // Weight form input value update
   document.getElementById('weight-input').value = log.weight || '';
 
-  // Stats calculate
   const loggedWeights = state.allLogs.filter(l => l.weight !== null);
   
   const latestWeightStat = document.getElementById('weight-stat-latest');
@@ -788,11 +841,9 @@ function updateWeightTabUI() {
     countWeightStat.textContent = '0 회';
   }
 
-  // Weight History Table Render
   const tbody = document.getElementById('weight-history-tbody');
   tbody.innerHTML = '';
 
-  // Reverse list to show newest on top
   const sortedHistory = [...loggedWeights].reverse();
 
   if (sortedHistory.length === 0) {
@@ -802,17 +853,14 @@ function updateWeightTabUI() {
       </tr>
     `;
   } else {
-    sortedHistory.forEach((item, index) => {
+    sortedHistory.forEach((item) => {
       const tr = document.createElement('tr');
 
-      // Date formatter
       const date = new Date(item.date);
       const formattedDate = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 
-      // Calculate diff from older log
       let diffHtml = '<span class="text-muted">-</span>';
       
-      // Find chronologically older item
       const chronIndex = loggedWeights.findIndex(l => l.date === item.date);
       if (chronIndex > 0) {
         const olderItem = loggedWeights[chronIndex - 1];
@@ -840,7 +888,6 @@ function updateWeightTabUI() {
       tr.querySelector('.btn-delete-weight').addEventListener('click', async (e) => {
         const dateToDelete = e.currentTarget.getAttribute('data-date');
         if (confirm(`${dateToDelete}의 체중 기록을 삭제하시겠습니까?`)) {
-          // If we delete the record, we reset weight in that day's log
           const targetLog = await getLogFromDB(dateToDelete);
           targetLog.weight = null;
           await saveLogToDB(targetLog);
@@ -876,13 +923,12 @@ function setupWeightListeners() {
 }
 
 // ==========================================================================
-// 8. DIARY NOTE & CONDITION MANAGER
+// 9. DIARY NOTE & CONDITION MANAGER
 // ==========================================================================
 
 function updateDiaryTabForms() {
   const log = state.currentLog;
 
-  // 1. Emoji picker active status
   const conditionRadios = document.getElementsByName('condition');
   conditionRadios.forEach(radio => {
     if (radio.value === log.condition) {
@@ -890,14 +936,11 @@ function updateDiaryTabForms() {
     }
   });
 
-  // 2. Sleep display and range slider
   document.getElementById('sleep-hours-val').textContent = log.sleep.toFixed(1);
   document.getElementById('sleep-range').value = log.sleep;
 
-  // 3. Water cup status display (already rendered in Dashboard, sync text here)
   document.getElementById('diary-water-display').textContent = log.water;
 
-  // 4. Diary feedback note text
   document.getElementById('diary-note-textarea').value = log.diaryNote || '';
 }
 
@@ -909,7 +952,6 @@ function setupDiaryListeners() {
     sleepVal.textContent = parseFloat(e.target.value).toFixed(1);
   });
 
-  // Hydration buttons inside Diary Page
   const wMinus = document.getElementById('btn-diary-water-minus');
   const wPlus = document.getElementById('btn-diary-water-plus');
 
@@ -929,12 +971,10 @@ function setupDiaryListeners() {
     }
   });
 
-  // Submit day notes
   const form = document.getElementById('form-diary');
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Get selected condition emoji
     const conditionRadios = document.getElementsByName('condition');
     let selectedCondition = 'good';
     for (const radio of conditionRadios) {
@@ -958,20 +998,18 @@ function setupDiaryListeners() {
 }
 
 // ==========================================================================
-// 9. CHART.JS VISUALIZATIONS
+// 10. CHART.JS VISUALIZATIONS
 // ==========================================================================
 
 let activeWeightFilterRange = 7;
 
 async function refreshCharts() {
-  // Wait a small timeout to let the container size calculations complete if switching tabs
   setTimeout(async () => {
     await renderWeightCharts();
     await renderCalorieComparisonChart();
   }, 50);
 }
 
-// Event handlers for Weight range buttons
 document.querySelectorAll('.chart-filters button').forEach(button => {
   button.addEventListener('click', async (e) => {
     document.querySelectorAll('.chart-filters button').forEach(b => b.classList.remove('active'));
@@ -984,7 +1022,6 @@ document.querySelectorAll('.chart-filters button').forEach(button => {
 async function renderWeightCharts() {
   const loggedWeights = state.allLogs.filter(l => l.weight !== null);
   
-  // Filter weights by selected range (7 or 30 days) before current selected date
   const maxDate = new Date(state.currentDate);
   const minDate = new Date(state.currentDate);
   minDate.setDate(minDate.getDate() - activeWeightFilterRange + 1);
@@ -994,7 +1031,6 @@ async function renderWeightCharts() {
 
   const filteredLogs = loggedWeights.filter(l => l.date >= minDateStr && l.date <= maxDateStr);
 
-  // If there are no points in the range, look back further to populate something readable
   const finalLogsForChart = filteredLogs.length > 0 
     ? filteredLogs 
     : loggedWeights.slice(-activeWeightFilterRange);
@@ -1005,17 +1041,14 @@ async function renderWeightCharts() {
   });
   const chartData = finalLogsForChart.map(l => l.weight);
 
-  // Style properties
-  const gridColor = '#EAE3DA'; // Warm Sand grid line
-  const labelColor = '#8E7E7C'; // Cozy Taupe label text
+  const gridColor = '#EAE3DA';
+  const labelColor = '#8E7E7C';
 
-  // --- CHART 1: Dashboard weight trend line ---
   const ctxDash = document.getElementById('weightDashboardChart').getContext('2d');
   if (state.charts.dashboardWeight) {
     state.charts.dashboardWeight.destroy();
   }
 
-  // Linear gradient for area chart line fill (Apricot tint)
   const gradient = ctxDash.createLinearGradient(0, 0, 0, 220);
   gradient.addColorStop(0, 'rgba(224, 173, 149, 0.3)');
   gradient.addColorStop(1, 'rgba(224, 173, 149, 0.0)');
@@ -1033,7 +1066,6 @@ async function renderWeightCharts() {
         pointBorderColor: '#ffffff',
         pointBorderWidth: 2,
         pointRadius: 5,
-        pointHoverRadius: 7,
         tension: 0.3,
         fill: true,
         backgroundColor: gradient
@@ -1043,24 +1075,10 @@ async function renderWeightCharts() {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#FAF7F2',
-          titleColor: '#4A3E3D',
-          bodyColor: '#4A3E3D',
-          titleFont: { family: 'Outfit, Noto Sans KR', weight: 'bold' },
-          bodyFont: { family: 'Outfit, Noto Sans KR' },
-          padding: 10,
-          borderColor: '#EAE3DA',
-          borderWidth: 1,
-          displayColors: false
-        }
+        legend: { display: false }
       },
       scales: {
-        x: {
-          grid: { display: false },
-          ticks: { color: labelColor, font: { size: 10 } }
-        },
+        x: { grid: { display: false }, ticks: { color: labelColor, font: { size: 10 } } },
         y: {
           grid: { color: gridColor },
           ticks: { color: labelColor, font: { size: 10 } },
@@ -1071,18 +1089,15 @@ async function renderWeightCharts() {
     }
   });
 
-  // --- CHART 2: Weight Detail Tab line ---
   const ctxDetail = document.getElementById('weightDetailChart').getContext('2d');
   if (state.charts.detailWeight) {
     state.charts.detailWeight.destroy();
   }
 
-  // Linear gradient for Detail graph
   const gradientDetail = ctxDetail.createLinearGradient(0, 0, 0, 300);
   gradientDetail.addColorStop(0, 'rgba(224, 173, 149, 0.35)');
   gradientDetail.addColorStop(1, 'rgba(224, 173, 149, 0.02)');
 
-  // For Detail chart, use full historical weight points (up to 30 days default)
   const fullChartLogs = loggedWeights.slice(-30);
   const detailLabels = fullChartLogs.map(l => {
     const d = new Date(l.date);
@@ -1111,29 +1126,9 @@ async function renderWeightCharts() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#FAF7F2',
-          titleColor: '#4A3E3D',
-          bodyColor: '#4A3E3D',
-          titleFont: { family: 'Outfit, Noto Sans KR', size: 12, weight: 'bold' },
-          bodyFont: { family: 'Outfit, Noto Sans KR', size: 12 },
-          padding: 12,
-          borderColor: '#EAE3DA',
-          borderWidth: 1,
-          callbacks: {
-            label: function(context) {
-              return ` 몸무게: ${context.parsed.y} kg`;
-            }
-          }
-        }
-      },
+      plugins: { legend: { display: false } },
       scales: {
-        x: {
-          grid: { display: false },
-          ticks: { color: labelColor, font: { size: 11 } }
-        },
+        x: { grid: { display: false }, ticks: { color: labelColor, font: { size: 11 } } },
         y: {
           grid: { color: gridColor },
           ticks: { color: labelColor, font: { size: 11 } },
@@ -1146,7 +1141,6 @@ async function renderWeightCharts() {
 }
 
 async function renderCalorieComparisonChart() {
-  // Render calorie intake vs burn side-by-side comparison for the last 7 days ending at current selected date
   const dates = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(state.currentDate);
@@ -1160,7 +1154,7 @@ async function renderCalorieComparisonChart() {
 
   for (const dt of dates) {
     const log = await getLogFromDB(dt);
-    const intake = (log.meals.breakfast.cal || 0) + (log.meals.lunch.cal || 0) + (log.meals.dinner.cal || 0);
+    const intake = (log.meals.breakfast.cal || 0) + (log.meals.lunch.cal || 0) + (log.meals.snack.cal || 0) + (log.meals.dinner.cal || 0);
     const burn = log.exercises.reduce((sum, item) => sum + (item.calories || 0), 0);
     
     intakeData.push(intake);
@@ -1183,7 +1177,7 @@ async function renderCalorieComparisonChart() {
         {
           label: '섭취 칼로리 (kcal)',
           data: intakeData,
-          backgroundColor: 'rgba(143, 168, 155, 0.85)', // Sage Green
+          backgroundColor: 'rgba(143, 168, 155, 0.85)',
           borderColor: 'var(--primary)',
           borderWidth: 1.5,
           borderRadius: 6
@@ -1191,7 +1185,7 @@ async function renderCalorieComparisonChart() {
         {
           label: '소모 칼로리 (kcal)',
           data: burnData,
-          backgroundColor: 'rgba(214, 159, 155, 0.85)', // Dusty Rose
+          backgroundColor: 'rgba(214, 159, 155, 0.85)',
           borderColor: 'var(--secondary)',
           borderWidth: 1.5,
           borderRadius: 6
@@ -1205,90 +1199,67 @@ async function renderCalorieComparisonChart() {
         legend: {
           display: true,
           position: 'top',
-          labels: {
-            color: '#4A3E3D',
-            font: { family: 'Outfit, Noto Sans KR', size: 10, weight: 'bold' }
-          }
-        },
-        tooltip: {
-          backgroundColor: '#FAF7F2',
-          titleColor: '#4A3E3D',
-          bodyColor: '#4A3E3D',
-          titleFont: { family: 'Outfit, Noto Sans KR', weight: 'bold' },
-          bodyFont: { family: 'Outfit, Noto Sans KR' },
-          padding: 10,
-          borderColor: '#EAE3DA',
-          borderWidth: 1
+          labels: { color: '#4A3E3D', font: { family: 'Outfit, Noto Sans KR', size: 10, weight: 'bold' } }
         }
       },
       scales: {
-        x: {
-          grid: { display: false },
-          ticks: { color: '#8E7E7C', font: { size: 10 } }
-        },
-        y: {
-          grid: { color: '#EAE3DA' },
-          ticks: { color: '#8E7E7C', font: { size: 10 } }
-        }
+        x: { grid: { display: false }, ticks: { color: '#8E7E7C', font: { size: 10 } } },
+        y: { grid: { color: '#EAE3DA' }, ticks: { color: '#8E7E7C', font: { size: 10 } } }
       }
     }
   });
 }
 
 // ==========================================================================
-// 10. DEMO DATA GENERATOR
+// 11. DEMO DATA GENERATOR
 // ==========================================================================
 
 function setupDemoDataListener() {
   const btnDemo = document.getElementById('btn-demo-data');
   btnDemo.addEventListener('click', async () => {
-    if (confirm('최근 7일간의 데모 데이터(식단, 운동, 몸무게 및 컨디션 일기)를 생성하시겠습니까? 기존 기록이 덮어씌워질 수 있습니다.')) {
+    if (confirm('최근 7일간의 데모 데이터를 생성하시겠습니까?')) {
       await generateMockData();
       await loadCurrentDateData();
       await refreshCharts();
-      alert('데모 데이터가 성공적으로 생성되었습니다!');
+      alert('데모 데이터가 생성되었습니다!');
     }
   });
 }
 
 async function generateMockData() {
   const today = new Date();
-  
-  // Base starting weight
-  let startingWeight = 72.8;
+  let startingWeight = 54.5;
 
-  // Preset food descriptions & calories
   const breakfastOptions = [
     { desc: '바나나 1개, 플레인 요거트, 그래놀라 30g', cal: 320 },
-    { desc: '사과 반 쪽, 호밀빵 1조각, 아보카도 스프레드', cal: 280 },
-    { desc: '고구마 1개, 삶은 계란 2개, 아몬드 브리즈', cal: 340 }
+    { desc: '사과 반 쪽, 호밀빵 1조각', cal: 280 },
+    { desc: '고구마 1개, 삶은 계란 2개', cal: 340 }
   ];
 
   const lunchOptions = [
-    { desc: '닭가슴살 현미밥 볶음밥, 샐러드 드레싱 없이', cal: 480 },
-    { desc: '소고기 안심 구이 120g, 구운 아스파라거스, 잡곡밥', cal: 520 },
-    { desc: '연어 스테이크 150g, 믹스 샐러드, 방울토마토', cal: 490 }
+    { desc: '닭가슴살 현미 볶음밥', cal: 480 },
+    { desc: '소고기 안심 구이 120g, 잡곡밥', cal: 520 },
+    { desc: '연어 스테이크 150g, 샐러드', cal: 490 }
   ];
 
   const dinnerOptions = [
-    { desc: '연두부 샐러드, 닭가슴살 소시지 1개, 파프리카', cal: 290 },
-    { desc: '그릭 요거트 100g, 아몬드 10알, 블루베리 한 줌', cal: 240 },
-    { desc: '단호박 수프, 리코타 치즈 샐러드, 통밀 크래커', cal: 310 }
+    { desc: '연두부 샐러드, 파프리카', cal: 290 },
+    { desc: '그릭 요거트 100g, 블루베리', cal: 240 },
+    { desc: '단호박 수프, 리코타 치즈 샐러드', cal: 310 }
   ];
 
   const diaryNotes = [
-    '스쿼트 자극이 잘 들어왔고 야식 참는 데 성공했다. 뿌듯한 하루.',
-    '점심에 살짝 배고팠지만 참았음. 오후 런닝 후 상쾌함이 대박!',
-    '몸무게가 줄기 시작했다! 피곤하지만 컨디션 자체는 훌륭함.',
-    '야근으로 인해 밤 운동은 패스. 대신 식단을 칼같이 지켰다.',
-    '체중 감량이 더뎌서 스트레스를 받았으나 물을 많이 마시며 견뎌냄.',
-    '등 산책 코스로 만보 걷기 완료. 숙면을 취할 것 같다.',
-    '가벼운 요가로 몸을 풀었다. 주말 식단도 무사히 마무리가 기대된다!'
+    '스쿼트 자극이 잘 들어왔고 야식 참기 성공!',
+    '오후 런닝 후 상쾌함 대박!',
+    '몸무게가 줄기 시작했다. 컨디션 굿!',
+    '식단 칼같이 지킨 하루.',
+    '체중 감량을 위해 물 많이 마심.',
+    '산책 코스로 만보 걷기 완료.',
+    '가벼운 요가로 몸을 풀었다.'
   ];
 
   const conditions = ['excellent', 'good', 'neutral', 'neutral-tired', 'stressed'];
 
-  // Delete previous logs first if exists to prevent messy overlays
   for (let i = 0; i < 7; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
@@ -1296,62 +1267,28 @@ async function generateMockData() {
     await deleteLogFromDB(dateStr);
   }
 
-  // Create 7 days of logs (from 6 days ago up to today)
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const dateStr = d.toISOString().split('T')[0];
 
-    // Weight trends slowly downwards
-    startingWeight -= (Math.random() * 0.3) - 0.08; // gradual weight loss with random fluctuations
+    startingWeight -= (Math.random() * 0.2) - 0.05;
 
     const log = createEmptyLog(dateStr);
     log.weight = parseFloat(startingWeight.toFixed(1));
-
-    // Hydration logs
-    log.water = Math.floor(Math.random() * 4) + 5; // 5 to 8 cups
-
-    // Sleep logs
-    log.sleep = parseFloat((Math.random() * 3 + 6).toFixed(1)); // 6 to 9 hours
-
-    // Notes
+    log.water = Math.floor(Math.random() * 4) + 5;
+    log.sleep = parseFloat((Math.random() * 3 + 6).toFixed(1));
     log.diaryNote = diaryNotes[i % diaryNotes.length];
     log.condition = conditions[i % conditions.length];
 
-    // Meals
-    log.meals.breakfast = {
-      desc: breakfastOptions[i % breakfastOptions.length].desc,
-      cal: breakfastOptions[i % breakfastOptions.length].cal,
-      photo: null // Mock generated text meals, user can upload photo for testing
-    };
-    log.meals.lunch = {
-      desc: lunchOptions[i % lunchOptions.length].desc,
-      cal: lunchOptions[i % lunchOptions.length].cal,
-      photo: null
-    };
-    log.meals.dinner = {
-      desc: dinnerOptions[i % dinnerOptions.length].desc,
-      cal: dinnerOptions[i % dinnerOptions.length].cal,
-      photo: null
-    };
+    log.meals.breakfast = breakfastOptions[i % breakfastOptions.length];
+    log.meals.lunch = lunchOptions[i % lunchOptions.length];
+    log.meals.dinner = dinnerOptions[i % dinnerOptions.length];
 
-    // Exercises
-    if (i === 6) {
-      log.exercises.push({ id: 1001, type: 'running', customName: '', duration: 30, calories: 300 });
-    } else if (i === 5) {
-      log.exercises.push({ id: 1002, type: 'walking', customName: '', duration: 45, calories: 180 });
-    } else if (i === 4) {
-      log.exercises.push({ id: 1003, type: 'strength', customName: '', duration: 50, calories: 300 });
-      log.exercises.push({ id: 1004, type: 'walking', customName: '', duration: 20, calories: 80 });
-    } else if (i === 3) {
-      log.exercises.push({ id: 1005, type: 'yoga', customName: '', duration: 40, calories: 120 });
-    } else if (i === 2) {
-      log.exercises.push({ id: 1006, type: 'cycling', customName: '', duration: 30, calories: 240 });
-    } else if (i === 1) {
-      log.exercises.push({ id: 1007, type: 'swimming', customName: '', duration: 40, calories: 360 });
-    } else if (i === 0) { // today
-      log.exercises.push({ id: 1008, type: 'running', customName: '', duration: 25, calories: 250 });
-      log.exercises.push({ id: 1009, type: 'strength', customName: '', duration: 30, calories: 180 });
+    if (i % 2 === 0) {
+      log.exercises.push({ id: Date.now() + i, type: 'running', customName: '', duration: 30, calories: 250 });
+    } else {
+      log.exercises.push({ id: Date.now() + i, type: 'yoga', customName: '', duration: 40, calories: 150 });
     }
 
     await saveLogToDB(log);
