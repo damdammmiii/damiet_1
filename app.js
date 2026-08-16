@@ -993,8 +993,8 @@ async function renderWeightCharts() {
   const chartData = finalLogsForChart.map(l => l.weight);
 
   // Style properties
-  const gridColor = 'rgba(255, 255, 255, 0.05)';
-  const labelColor = '#94a3b8';
+  const gridColor = '#EAE3DA'; // Warm Sand grid line
+  const labelColor = '#8E7E7C'; // Cozy Taupe label text
 
   // --- CHART 1: Dashboard weight trend line ---
   const ctxDash = document.getElementById('weightDashboardChart').getContext('2d');
@@ -1002,10 +1002,10 @@ async function renderWeightCharts() {
     state.charts.dashboardWeight.destroy();
   }
 
-  // Linear gradient for area chart line fill
+  // Linear gradient for area chart line fill (Apricot tint)
   const gradient = ctxDash.createLinearGradient(0, 0, 0, 220);
-  gradient.addColorStop(0, 'rgba(245, 158, 11, 0.2)');
-  gradient.addColorStop(1, 'rgba(245, 158, 11, 0.0)');
+  gradient.addColorStop(0, 'rgba(224, 173, 149, 0.3)');
+  gradient.addColorStop(1, 'rgba(224, 173, 149, 0.0)');
 
   state.charts.dashboardWeight = new Chart(ctxDash, {
     type: 'line',
@@ -1017,7 +1017,7 @@ async function renderWeightCharts() {
         borderColor: 'var(--warning)',
         borderWidth: 3,
         pointBackgroundColor: 'var(--warning)',
-        pointBorderColor: '#0b0f17',
+        pointBorderColor: '#ffffff',
         pointBorderWidth: 2,
         pointRadius: 5,
         pointHoverRadius: 7,
@@ -1032,11 +1032,13 @@ async function renderWeightCharts() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(15, 23, 42, 0.95)',
-          titleFont: { family: 'Outfit, Noto Sans KR' },
+          backgroundColor: '#FAF7F2',
+          titleColor: '#4A3E3D',
+          bodyColor: '#4A3E3D',
+          titleFont: { family: 'Outfit, Noto Sans KR', weight: 'bold' },
           bodyFont: { family: 'Outfit, Noto Sans KR' },
           padding: 10,
-          borderColor: 'rgba(255,255,255,0.08)',
+          borderColor: '#EAE3DA',
           borderWidth: 1,
           displayColors: false
         }
@@ -1064,8 +1066,8 @@ async function renderWeightCharts() {
 
   // Linear gradient for Detail graph
   const gradientDetail = ctxDetail.createLinearGradient(0, 0, 0, 300);
-  gradientDetail.addColorStop(0, 'rgba(245, 158, 11, 0.25)');
-  gradientDetail.addColorStop(1, 'rgba(245, 158, 11, 0.01)');
+  gradientDetail.addColorStop(0, 'rgba(224, 173, 149, 0.35)');
+  gradientDetail.addColorStop(1, 'rgba(224, 173, 149, 0.02)');
 
   // For Detail chart, use full historical weight points (up to 30 days default)
   const fullChartLogs = loggedWeights.slice(-30);
@@ -1085,7 +1087,7 @@ async function renderWeightCharts() {
         borderColor: 'var(--warning)',
         borderWidth: 3,
         pointBackgroundColor: 'var(--warning)',
-        pointBorderColor: '#0b0f17',
+        pointBorderColor: '#ffffff',
         pointBorderWidth: 2,
         pointRadius: 5,
         tension: 0.35,
@@ -1099,11 +1101,13 @@ async function renderWeightCharts() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(15, 23, 42, 0.95)',
-          titleFont: { family: 'Outfit, Noto Sans KR', size: 12 },
+          backgroundColor: '#FAF7F2',
+          titleColor: '#4A3E3D',
+          bodyColor: '#4A3E3D',
+          titleFont: { family: 'Outfit, Noto Sans KR', size: 12, weight: 'bold' },
           bodyFont: { family: 'Outfit, Noto Sans KR', size: 12 },
           padding: 12,
-          borderColor: 'rgba(255,255,255,0.08)',
+          borderColor: '#EAE3DA',
           borderWidth: 1,
           callbacks: {
             label: function(context) {
@@ -1166,7 +1170,7 @@ async function renderCalorieComparisonChart() {
         {
           label: '섭취 칼로리 (kcal)',
           data: intakeData,
-          backgroundColor: 'rgba(16, 185, 129, 0.85)',
+          backgroundColor: 'rgba(143, 168, 155, 0.85)', // Sage Green
           borderColor: 'var(--primary)',
           borderWidth: 1.5,
           borderRadius: 6
@@ -1174,7 +1178,7 @@ async function renderCalorieComparisonChart() {
         {
           label: '소모 칼로리 (kcal)',
           data: burnData,
-          backgroundColor: 'rgba(139, 92, 246, 0.85)',
+          backgroundColor: 'rgba(214, 159, 155, 0.85)', // Dusty Rose
           borderColor: 'var(--secondary)',
           borderWidth: 1.5,
           borderRadius: 6
@@ -1189,27 +1193,29 @@ async function renderCalorieComparisonChart() {
           display: true,
           position: 'top',
           labels: {
-            color: '#f1f5f9',
-            font: { family: 'Outfit, Noto Sans KR', size: 10 }
+            color: '#4A3E3D',
+            font: { family: 'Outfit, Noto Sans KR', size: 10, weight: 'bold' }
           }
         },
         tooltip: {
-          backgroundColor: 'rgba(15, 23, 42, 0.95)',
-          titleFont: { family: 'Outfit, Noto Sans KR' },
+          backgroundColor: '#FAF7F2',
+          titleColor: '#4A3E3D',
+          bodyColor: '#4A3E3D',
+          titleFont: { family: 'Outfit, Noto Sans KR', weight: 'bold' },
           bodyFont: { family: 'Outfit, Noto Sans KR' },
           padding: 10,
-          borderColor: 'rgba(255,255,255,0.08)',
+          borderColor: '#EAE3DA',
           borderWidth: 1
         }
       },
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: '#94a3b8', font: { size: 10 } }
+          ticks: { color: '#8E7E7C', font: { size: 10 } }
         },
         y: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#94a3b8', font: { size: 10 } }
+          grid: { color: '#EAE3DA' },
+          ticks: { color: '#8E7E7C', font: { size: 10 } }
         }
       }
     }
