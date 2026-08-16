@@ -21,9 +21,11 @@
 </head>
 <body>
   <div class="app-container">
-    
+    <!-- 모바일 배경 오버레이 -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
     <!-- Sidebar Navigation -->
-    <aside class="app-sidebar">
+    <aside class="app-sidebar" id="app-sidebar">
       <div class="sidebar-logo">
         <i data-lucide="sparkles" class="logo-icon"></i>
         <span class="logo-text">Damiet</span>
@@ -67,6 +69,11 @@
       
       <!-- Top Bar: Date Selector -->
       <header class="app-header">
+        <!-- 모바일 토글 버튼 -->
+        <button id="btn-toggle-sidebar" class="btn-icon-mobile-toggle" aria-label="메뉴 열기">
+          <i data-lucide="menu"></i>
+        </button>
+
         <div class="header-title">
           <h1 id="header-page-title">대시보드</h1>
           <p id="header-subtitle" class="text-muted">오늘의 다이어트 여정을 체크하세요.</p>
