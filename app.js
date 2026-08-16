@@ -7,6 +7,8 @@ const state = {
   currentDate: getTodayString(),
   currentLog: null,
   allLogs: [],
+  calendarYear: new Date().getFullYear(),
+  calendarMonth: new Date().getMonth(), // 0-indexed
   charts: {
     dashboardWeight: null,
     dashboardCalories: null,
@@ -127,6 +129,7 @@ function createEmptyLog(date) {
     meals: {
       breakfast: { desc: '', cal: 0, photo: null },
       lunch: { desc: '', cal: 0, photo: null },
+      snack: { desc: '', cal: 0, photo: null },
       dinner: { desc: '', cal: 0, photo: null }
     },
     exercises: [],
@@ -156,6 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Setup Event Listeners
   setupNavigationListeners();
   setupDatePickerListeners();
+  setupCalendarListeners();
   setupQuickLogListeners();
   setupDietListeners();
   setupExerciseListeners();
@@ -177,6 +181,7 @@ async function loadCurrentDateData() {
   updateExerciseTabList();
   updateWeightTabUI();
   updateDiaryTabForms();
+  renderCalendar();
 }
 
 function updateDateDisplayText(dateStr) {
@@ -198,7 +203,8 @@ function setupNavigationListeners() {
 
   const pageMeta = {
     dashboard: { title: '대시보드', subtitle: '오늘의 다이어트 여정을 체크하세요.' },
-    diet: { title: '식단 기록', subtitle: '아침, 점심, 저녁 식단과 영양을 세세히 기입하세요.' },
+    calendar: { title: '한달 달력', subtitle: '이번 달 다이어트 기록 상태를 한눈에 모니터링하세요.' },
+    diet: { title: '식단 기록', subtitle: '아침, 점심, 간식, 저녁 식단과 영양을 세세히 기입하세요.' },
     exercise: { title: '운동 기록', subtitle: '칼로리를 활기차게 태우고 비교해 보세요.' },
     weight: { title: '체중 변화', subtitle: '몸무게 추이를 분석하고 변화를 모니터링합니다.' },
     diary: { title: '하루 마무리', subtitle: '컨디션과 간단한 소회를 일기장으로 남기세요.' }
@@ -278,7 +284,7 @@ function updateDashboardWidgets() {
   const log = state.currentLog;
 
   // 1. Calories Circle Progress Calculator
-  const intake = (log.meals.breakfast.cal || 0) + (log.meals.lunch.cal || 0) + (log.meals.dinner.cal || 0);
+  const intake = (log.meals.breakfast.cal || 0) + (log.meals.lunch.cal || 0) + (log.meals.snack.cal || 0) + (log.meals.dinner.cal || 0);
   const burn = log.exercises.reduce((sum, item) => sum + (item.calories || 0), 0);
   const net = intake - burn;
 
@@ -437,7 +443,7 @@ function setupQuickLogListeners() {
 
 function updateDietTabForms() {
   const log = state.currentLog;
-  const meals = ['breakfast', 'lunch', 'dinner'];
+  const meals = ['breakfast', 'lunch', 'snack', 'dinner'];
 
   meals.forEach(type => {
     const mealData = log.meals[type];
@@ -465,7 +471,7 @@ function updateDietTabForms() {
 }
 
 function setupDietListeners() {
-  const meals = ['breakfast', 'lunch', 'dinner'];
+  const meals = ['breakfast', 'lunch', 'snack', 'dinner'];
 
   meals.forEach(type => {
     const dropZone = document.getElementById(`${type}-photo-zone`);
@@ -531,7 +537,14 @@ function setupDietListeners() {
 
       await saveLogToDB(state.currentLog);
       await loadCurrentDateData();
-      alert(`${type === 'breakfast' ? '아침' : type === 'lunch' ? '점심' : '저녁'} 식단 정보가 저장되었습니다.`);
+      
+      const mealLabels = {
+        breakfast: '아침',
+        lunch: '점심',
+        snack: '간식',
+        dinner: '저녁'
+      };
+      alert(`${mealLabels[type] || ''} 식단 정보가 저장되었습니다.`);
     });
   });
 }

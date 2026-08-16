@@ -1559,6 +1559,228 @@ body {
   margin-top: 1rem;
 }
 
+/* Snack Badge color theme (Apricot Peach) */
+.meal-badge.snack {
+  background: rgba(224, 173, 149, 0.12);
+  color: #C17E5E;
+  border: 1px solid rgba(224, 173, 149, 0.2);
+}
+
+/* ==========================================================================
+   TAB: MONTHLY CALENDAR
+   ========================================================================== */
+
+.calendar-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.calendar-ctrl-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.calendar-month-label {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text-main);
+  min-width: 180px;
+  text-align: center;
+}
+
+.calendar-grid-container {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: 0 8px 30px rgba(74, 62, 61, 0.025);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--divider);
+  margin-bottom: 0.8rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.weekday {
+  color: var(--text-muted);
+}
+.weekday.sunday {
+  color: #C1736E;
+}
+.weekday.saturday {
+  color: #799CA9;
+}
+
+.calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+/* Day Cell styling */
+.calendar-day-cell {
+  background: #FFFFFF;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  aspect-ratio: 1.05 / 1;
+  min-height: 85px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.6rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: 0 2px 4px rgba(74, 62, 61, 0.01);
+}
+
+.calendar-day-cell:hover {
+  background: #FAF7F2;
+  border-color: var(--text-muted);
+  transform: translateY(-1px);
+}
+
+.calendar-day-cell.active-selected {
+  border-color: var(--primary);
+  background: rgba(143, 168, 155, 0.04);
+}
+
+.calendar-day-cell.empty {
+  background: transparent;
+  border: none;
+  cursor: default;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.cell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.cell-num {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.calendar-day-cell.sunday-cell .cell-num {
+  color: #C1736E;
+}
+.calendar-day-cell.saturday-cell .cell-num {
+  color: #799CA9;
+}
+
+.calendar-day-cell.today-cell {
+  background: rgba(214, 159, 155, 0.06);
+  border: 2px solid var(--secondary);
+}
+
+/* Weight indicator inside cell */
+.cell-weight {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--warning);
+  text-align: right;
+  margin-top: 0.2rem;
+  letter-spacing: -0.5px;
+}
+
+/* Cell Bottom Row (indicators) */
+.cell-indicators {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 0.3rem;
+  border-top: 1px dashed rgba(74, 62, 61, 0.04);
+}
+
+.cell-meal-dots {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.cell-meal-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #EAE3DA; /* Empty state dot color */
+  transition: var(--transition-smooth);
+}
+
+.cell-meal-dot.active-b { background: var(--primary); }     /* Breakfast: Sage */
+.cell-meal-dot.active-l { background: var(--info); }        /* Lunch: Blue */
+.cell-meal-dot.active-s { background: var(--warning); }     /* Snack: Apricot */
+.cell-meal-dot.active-d { background: var(--accent); }      /* Dinner: Lilac */
+
+.cell-exercise-icon {
+  color: var(--secondary);
+  width: 13px;
+  height: 13px;
+  display: flex;
+  align-items: center;
+}
+
+/* Calendar Legend Styling */
+.calendar-legend-box {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: #F4EFE9;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.legend-dot.diet-b { background: var(--primary); }
+.legend-dot.diet-l { background: var(--info); }
+.legend-dot.diet-s { background: var(--warning); }
+.legend-dot.diet-d { background: var(--accent); }
+
+.legend-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--secondary);
+}
+
+.legend-text-weight {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--warning);
+}
+
 /* ==========================================================================
    Responsive & Adaptive Layout (Mobile/Tablet overlays)
    ========================================================================== */
@@ -1567,13 +1789,13 @@ body {
   /* Sidebar switches to Bottom Nav on mobile */
   .app-sidebar {
     width: 100vw;
-    height: 70px;
+    height: 72px;
     flex-direction: row;
     position: fixed;
     top: auto;
     bottom: 0;
     left: 0;
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.5rem;
     border-right: none;
     border-top: 1px solid var(--card-border);
     justify-content: space-around;
@@ -1594,21 +1816,23 @@ body {
     gap: 0;
   }
 
+  /* Shrunk mobile buttons to fit 6 items perfectly */
   .nav-item {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.25rem;
-    padding: 0.4rem 0.5rem;
-    font-size: 0.75rem;
+    gap: 0.15rem;
+    padding: 0.3rem 0.1rem;
+    font-size: 0.62rem;
     border-radius: var(--radius-sm);
     flex: 1;
     text-align: center;
+    white-space: nowrap;
   }
 
   .nav-item i {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
 
   .nav-item.active {
@@ -1631,7 +1855,7 @@ body {
   .app-main {
     margin-left: 0;
     width: 100%;
-    padding: 1.5rem 1.5rem 6.5rem 1.5rem;
+    padding: 1.5rem 1.25rem 6.5rem 1.25rem;
     gap: 1.5rem;
   }
 
@@ -1640,7 +1864,67 @@ body {
   }
 
   .header-title h1 {
-    font-size: 1.5rem;
+    font-size: 1.45rem;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Smaller mobile screen adjustments for calendar cells */
+  .calendar-grid-container {
+    padding: 0.8rem;
+    border-radius: var(--radius-md);
+  }
+
+  .calendar-weekdays {
+    font-size: 0.8rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .calendar-days-grid {
+    gap: 4px;
+  }
+
+  .calendar-day-cell {
+    padding: 0.3rem;
+    min-height: 58px;
+    border-radius: 6px;
+  }
+
+  .cell-num {
+    font-size: 0.75rem;
+  }
+
+  .cell-weight {
+    font-size: 0.6rem;
+    margin-top: 0;
+  }
+
+  .cell-indicators {
+    padding-top: 0.15rem;
+  }
+
+  .cell-meal-dots {
+    gap: 2px;
+  }
+
+  .cell-meal-dot {
+    width: 4px;
+    height: 4px;
+  }
+
+  .cell-exercise-icon {
+    width: 9px;
+    height: 9px;
+  }
+
+  .calendar-legend-box {
+    gap: 0.75rem;
+    padding: 0.8rem;
+  }
+
+  .legend-item {
+    font-size: 0.75rem;
   }
 }
 
